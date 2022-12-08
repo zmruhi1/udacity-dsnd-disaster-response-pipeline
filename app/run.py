@@ -8,7 +8,7 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
-from sklearn.externals import joblib
+import joblib
 from sqlalchemy import create_engine
 
 
@@ -26,11 +26,11 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('DisasterMessages', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -39,12 +39,17 @@ model = joblib.load("../models/your_model_name.pkl")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+
+    categories =  df[df.columns[4:]].sum()/len(df)
+    categories_counts = categories.sort_values(ascending=False)
+    categories_names = list(categories.index)
+
+    aid_related_counts = df[df['aid_related']==1].groupby('genre').count()['message']
+    aid_related_names = list(aid_related_counts.index)
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -55,7 +60,43 @@ def index():
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': 'Distribution of Message Genres',   # visualization 1
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre"
+                }
+            }
+        }, 
+                {
+            'data': [
+                Bar(
+                    x=categories_names,
+                    y=categories_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of messages within the 36 categories',   # visualization 3
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Categories"
+                }
+            }
+        }, 
+        {
+            'data': [
+                Bar(
+                    x=aid_related_names,
+                    y=aid_related_counts
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Aid Related messages',   # visualization 2
                 'yaxis': {
                     'title': "Count"
                 },
