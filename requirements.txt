@@ -1,0 +1,14 @@
+numPy
+pandas
+pickle
+sys
+re
+nltk
+sklearn
+sqlalchemy
+json
+plotly
+joblib
+flask
+
+

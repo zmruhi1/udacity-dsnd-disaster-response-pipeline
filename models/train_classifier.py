@@ -21,6 +21,10 @@ from nltk.corpus import stopwords
 nltk.download(['punkt', 'wordnet', 'omw-1.4'])
 
 def load_data(database_filepath):
+    '''
+    input   : path to SQLite database
+    output  : returns features, ground truth and label names
+    '''
     engine = create_engine('sqlite:///' + database_filepath)
     df = pd.read_sql_table('DisasterMessages', engine)
     X = df['message']
@@ -31,6 +35,10 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    '''
+    input   : messages 
+    output  : returns case normalized, lemmatized, and tokenized text 
+    '''
     # creating tokens
     words = word_tokenize(re.sub(r"[^a-zA-Z0-9]", ' ', text.lower()))
     # stemming
@@ -44,6 +52,10 @@ def tokenize(text):
 
     
 def build_model():
+    '''
+    input   : none
+    output  : returns GridSearchCV object performed on the pipeline 
+    '''
     pipeline = Pipeline([
                         ('vect', CountVectorizer(tokenizer=tokenize)),
                         ('tfidf', TfidfTransformer()),
@@ -60,6 +72,10 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    input   : model, test features and ground truth, category names
+    output  : prints classification report for each category 
+    '''
     preds = model.predict(X_test)
     
     for i in range(len(category_names)):
@@ -68,6 +84,10 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    '''
+    input   : model 
+    output  : saves the model to given path 
+    '''
     pickle.dump(model, open(model_filepath, "wb"))
 
 
